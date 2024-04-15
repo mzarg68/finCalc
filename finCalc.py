@@ -57,23 +57,23 @@ def getResult() -> str:
         result = float(cfValue) / (1+pctnbr) ** nperValue
         strResult = str(round(result, 2))
         new_calc = {'Initial': strResult, 'Final': cfValue,
-                    'Periods': nperValue, 'Interest': getPCTText(pctnbr)}
+                    'Periods': nperValue, 'Interest': getPCTText(pctnbr), 'Unit': period}
     elif ndx == 1:
         result = float(ciValue) * (1+pctnbr) ** nperValue
         strResult = str(round(result, 2))
         new_calc = {'Initial': ciValue, 'Final': strResult,
-                    'Periods': nperValue, 'Interest': getPCTText(pctnbr)}
+                    'Periods': nperValue, 'Interest': getPCTText(pctnbr), 'Unit': period}
     elif ndx == 2:
         result = math.log(float(cfValue)/float(ciValue)) / \
             math.log(1+pctnbr)
         strResult = str(math.ceil(result))
         new_calc = {'Initial': ciValue, 'Final': cfValue,
-                    'Periods': strResult, 'Interest': getPCTText(pctnbr)}
+                    'Periods': strResult, 'Interest': getPCTText(pctnbr), 'Unit': period}
     elif ndx == 3:
         result = (((float(cfValue)/float(ciValue)) ** (1/nperValue)) - 1) * 100
         strResult = str(round(result, 2)) + '%'
         new_calc = {'Initial': ciValue, 'Final': cfValue,
-                    'Periods': nperValue, 'Interest': strResult}
+                    'Periods': nperValue, 'Interest': strResult, 'Unit': period}
 
     st.session_state.df_historical.loc[len(
         st.session_state.df_historical)] = new_calc
@@ -90,10 +90,10 @@ def load_lottieimg(imgpath) -> json:
 result_options = ['Initial Value',
                   'Final Value', 'Periods', 'Interest Rate']
 period_options = ['Days', 'Months', 'Years']
-calc_image = 'calculate2.json'
+calc_image = 'calculate3.json'
 lottie_img = load_lottieimg(calc_image)
 app_version = 'Prototype v0.1.0 @2024-04-12'
-dfcolumns = ['Initial', 'Final', 'Periods', 'Interest']
+dfcolumns = ['Initial', 'Final', 'Periods', 'Interest', 'Unit']
 
 if 'run_counter' not in st.session_state:
     st.session_state.run_counter = 1
@@ -131,7 +131,7 @@ with st.sidebar:
     st.write('''Designed by [ZINKER©️](https://zinker.com.br/)''')
 
 # ---- ROW A : SETUP / INPUTS / OUTPUT / IMAGE ----
-col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+col1, col2, col3, col4 = st.columns([1, 1, 2, 3])
 
 with col1:
     st.header("Setup")
@@ -187,20 +187,22 @@ with col3:
     if calc_result:
         st.empty()
         if not isNumber(ciValue):
-            st.error('Initial value is not valid!')
+            st.error('# 😧 Initial value is not valid!')
         elif not isNumber(cfValue):
-            st.error('Final value is not valid!')
+            st.error('# 😧 Final value is not valid!')
         elif not isNumber(pctValue):
-            st.error('Interest rate is not valid!')
+            st.error('# 😧 Interest rate is not valid!')
         else:
             st.toast('Calc done!', icon='✨')
             resultValue = getResult()
-            st.success(f'# {result_options[ndx]} {resultValue}')
+            # st.success(f'# {result_options[ndx]} {resultValue}')
+            st.write(f'# {result_options[ndx]}')
+            st.success(f'# {resultValue}')
 
 with col4:
     # st_lottie(lottie_img, height=200, key="image_calculator")
     st.header('_Historical_')
-    st.dataframe(st.session_state.df_historical)
+    st.dataframe(st.session_state.df_historical, use_container_width=True)
 
 
 st.write('---')
