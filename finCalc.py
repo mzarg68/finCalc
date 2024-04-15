@@ -90,7 +90,7 @@ def load_lottieimg(imgpath) -> json:
 result_options = ['Initial Value',
                   'Final Value', 'Periods', 'Interest Rate']
 period_options = ['Days', 'Months', 'Years']
-calc_image = 'calculate.json'
+calc_image = 'calculate2.json'
 lottie_img = load_lottieimg(calc_image)
 app_version = 'Prototype v0.1.0 @2024-04-12'
 dfcolumns = ['Initial', 'Final', 'Periods', 'Interest']
@@ -198,14 +198,19 @@ with col3:
             st.success(f'# {result_options[ndx]} {resultValue}')
 
 with col4:
-    st_lottie(lottie_img, height=200, key="image_calculator")
+    # st_lottie(lottie_img, height=200, key="image_calculator")
+    st.header('_Historical_')
+    st.dataframe(st.session_state.df_historical)
+
 
 st.write('---')
+
 # ---- ROW B : HISTORICAL / MONTHLY RATE ----
 col1, col2 = st.columns(2)
 with col1:
-    st.header('_Historical_')
-    st.dataframe(st.session_state.df_historical)
+    st_lottie(lottie_img, height=200, key="image_calculator")
+    # st.header('_Historical_')
+    # st.dataframe(st.session_state.df_historical)
 
 with col2:
     st.header('_Get monthly rate_')
