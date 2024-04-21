@@ -21,7 +21,6 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
 def getRate(annual_rate: float, nbr_periods: int) -> str:
-    # annual_rate = annual_rate.replace('%', '')
     arate = annual_rate/100
     cfValue = 100 * (1 + arate)
     pctValue = (((cfValue / 100) ** (1/nbr_periods)) - 1) * 100
@@ -41,7 +40,6 @@ def getPCTText(value: float) -> str:
 def getOutput() -> str:
     strResult = '#Error'
     new_calc = {}
-
     if ndx == 0:
         result = cfValue / (1+(pctValue/100)) ** nperValue
         strResult = str(round(result, 2))
@@ -84,7 +82,7 @@ result_options = ['Initial Value',
 period_options = ['Days', 'Months', 'Years']
 calc_image = 'calculate3.json'
 lottie_img = load_lottieimg(calc_image)
-app_version = 'Prototype v0.1.0 @2024-04-12'
+app_version = 'Prototype v0.2.0 @2024-04-21'
 dfcolumns = ['Initial', 'Final', 'Periods', 'Interest', 'Unit']
 
 if 'run_counter' not in st.session_state:

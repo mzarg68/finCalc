@@ -1,7 +1,7 @@
 # 🔢 finCalc app
 
 - Created and designed by [Zinker©️](https://zinker.com.br/)
-- Prototype v0.1.0 @2024-04-12
+- Prototype v0.2.0 @2024-04-21
 
 ## Purpose
 
