@@ -20,63 +20,55 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # ---- FUNCTIONS ----
 
 
-def getMonthlyRate(annual_rate: str) -> str:
-    annual_rate = annual_rate.replace('%', '')
-    arate = float(annual_rate)/100
+def getRate(annual_rate: float, nbr_periods: int) -> str:
+    # annual_rate = annual_rate.replace('%', '')
+    arate = annual_rate/100
     cfValue = 100 * (1 + arate)
-    pctValue = (((cfValue / 100) ** (1/12)) - 1) * 100
-    return str(round(pctValue, 2)) + '%'
-
-
-def isNumber(value: str) -> bool:
-    value = value.replace('%', '')
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
+    pctValue = (((cfValue / 100) ** (1/nbr_periods)) - 1) * 100
+    return getPCTText(pctValue)
 
 
 def getPCTText(value: float) -> str:
-    return str(round(value * 100, 2)) + '%'
+    strValue = str(round(value, 2))
+    decimals = 0
+    if '.' in strValue:
+        decimals = len(strValue.split('.')[1])
+    if decimals < 2:
+        strValue += (2 - decimals) * '0'
+    return strValue + '%'
 
 
-def getResult() -> str:
+def getOutput() -> str:
     strResult = '#Error'
     new_calc = {}
-    pctValue2 = pctValue
-    if ' ' in pctValue2:
-        pctValue2 = pctValue2.replace(' ', '')
-    if '%' in pctValue2:
-        pctValue2 = pctValue2.replace('%', '')
-        pctnbr = float(pctValue2)/100
-    else:
-        pctnbr = float(pctValue2)
 
     if ndx == 0:
-        result = float(cfValue) / (1+pctnbr) ** nperValue
+        result = cfValue / (1+(pctValue/100)) ** nperValue
         strResult = str(round(result, 2))
-        new_calc = {'Initial': strResult, 'Final': cfValue,
-                    'Periods': nperValue, 'Interest': getPCTText(pctnbr), 'Unit': period}
+        new_calc = {'Initial': result, 'Final': cfValue,
+                    'Periods': nperValue, 'Interest': getPCTText(pctValue), 'Unit': period}
     elif ndx == 1:
-        result = float(ciValue) * (1+pctnbr) ** nperValue
+        result = ciValue * (1+(pctValue/100)) ** nperValue
         strResult = str(round(result, 2))
-        new_calc = {'Initial': ciValue, 'Final': strResult,
-                    'Periods': nperValue, 'Interest': getPCTText(pctnbr), 'Unit': period}
+        new_calc = {'Initial': ciValue, 'Final': result,
+                    'Periods': nperValue, 'Interest': getPCTText(pctValue), 'Unit': period}
     elif ndx == 2:
-        result = math.log(float(cfValue)/float(ciValue)) / \
-            math.log(1+pctnbr)
-        strResult = str(math.ceil(result))
+        result = math.log(cfValue/ciValue) / \
+            math.log(1+(pctValue/100))
+        result = math.ceil(result)
+        strResult = str(result)
         new_calc = {'Initial': ciValue, 'Final': cfValue,
-                    'Periods': strResult, 'Interest': getPCTText(pctnbr), 'Unit': period}
+                    'Periods': result, 'Interest': getPCTText(pctValue), 'Unit': period}
     elif ndx == 3:
-        result = (((float(cfValue)/float(ciValue)) ** (1/nperValue)) - 1) * 100
-        strResult = str(round(result, 2)) + '%'
+        result = (((cfValue/ciValue) ** (1/nperValue)) - 1) * 100
+        result = round(result, 2)
+        strResult = getPCTText(result)
         new_calc = {'Initial': ciValue, 'Final': cfValue,
                     'Periods': nperValue, 'Interest': strResult, 'Unit': period}
 
     st.session_state.df_historical.loc[len(
-        st.session_state.df_historical)] = new_calc
+        st.session_state.df_historical) + 1] = new_calc
+
     return strResult
 
 
@@ -144,41 +136,43 @@ with col2:
     if opt == result_options[0]:
         ndx = 0
         st.empty()
-        ciValue = '0.0'
-        cfValue = st.text_input('Final Value', value='500.0', key='cfValueKey')
-        nperValue = st.slider(f'Periods [{period}]', min_value=1,
-                              max_value=100, value=12, step=1, key='nperValueKey')
-        pctValue = st.text_input(
-            'Interest Rate', value='5.00%', key='pctValueKey', placeholder='5.00%')
+        ciValue = 0.0
+        cfValue = st.number_input(
+            'Final Value', value=500.0, step=1.0, key='cfValueKey')
+        nperValue = st.slider(f'Periods [in {period}]', min_value=1,
+                              max_value=120, value=12, step=1, key='nperValueKey')
+        pctValue = st.number_input(
+            f'% Interest Rate [by {period[:-1]}]', value=5.0, key='pctValueKey', step=0.1, min_value=0.01)
     elif opt == result_options[1]:
         ndx = 1
-        ciValue = st.text_input(
-            'Initial Value', value='100.0', key='ciValueKey')
+        ciValue = st.number_input(
+            'Initial Value', value=100.0, step=1.0, key='ciValueKey')
         st.empty()
-        cfValue = '0.0'
-        nperValue = st.slider(f'Periods [{period}]', min_value=1,
-                              max_value=100, value=12, step=1, key='nperValueKey')
-        pctValue = st.text_input(
-            'Interest Rate', value='5.00%', key='pctValueKey', placeholder='5.00%')
+        cfValue = 0.0
+        nperValue = st.slider(f'Periods [in {period}]', min_value=1,
+                              max_value=120, value=12, step=1, key='nperValueKey')
+        pctValue = st.number_input(
+            f'% Interest Rate [by {period[:-1]}]', value=5.0, key='pctValueKey', step=0.1, min_value=0.01)
     elif opt == result_options[2]:
         ndx = 2
-        ciValue = st.text_input(
-            'Initial Value', value='100.0', key='ciValueKey')
-        cfValue = st.text_input(
-            'Final Value', value='500.0', key='cfValueKey')
+        ciValue = st.number_input(
+            'Initial Value', value=100.0, step=1.0, key='ciValueKey')
+        cfValue = st.number_input(
+            'Final Value', value=500.0, step=1.0, key='cfValueKey')
         st.empty()
-        pctValue = st.text_input(
-            'Interest Rate', value='5.00%', key='pctValueKey', placeholder='5.00%')
+        pctValue = st.number_input(
+            f'% Interest Rate [by {period[:-1]}]', value=5.0, key='pctValueKey', step=0.1, min_value=0.01)
+        nperValue = 12
     elif opt == result_options[3]:
         ndx = 3
-        ciValue = st.text_input(
-            'Initial Value', value='100.0', key='ciValueKey')
-        cfValue = st.text_input(
-            'Final Value', value='500.0', key='cfValueKey')
+        ciValue = st.number_input(
+            'Initial Value', value=100.0, step=1.0, key='ciValueKey')
+        cfValue = st.number_input(
+            'Final Value', value=500.0, step=1.0, key='cfValueKey')
         nperValue = st.slider(f'Periods [{period}]', min_value=1,
-                              max_value=100, value=12, step=1, key='nperValueKey')
+                              max_value=120, value=12, step=1, key='nperValueKey')
         st.empty()
-        pctValue = '5.00%'
+        pctValue = 5.00
     st.write('')
     calc_result = st.button('CALCULATE', key='btnCalcResult')
 
@@ -186,21 +180,12 @@ with col3:
     st.header('Output')
     if calc_result:
         st.empty()
-        if not isNumber(ciValue):
-            st.error('# 😧 Initial value is not valid!')
-        elif not isNumber(cfValue):
-            st.error('# 😧 Final value is not valid!')
-        elif not isNumber(pctValue):
-            st.error('# 😧 Interest rate is not valid!')
-        else:
-            st.toast('Calc done!', icon='✨')
-            resultValue = getResult()
-            # st.success(f'# {result_options[ndx]} {resultValue}')
-            st.write(f'# {result_options[ndx]}')
-            st.success(f'# {resultValue}')
+        resultValue = getOutput()
+        st.toast('Calc done!', icon='✨')
+        st.write(f'# {result_options[ndx]}')
+        st.success(f'# {resultValue}')
 
 with col4:
-    # st_lottie(lottie_img, height=200, key="image_calculator")
     st.header('_Historical_')
     st.dataframe(st.session_state.df_historical, use_container_width=True)
 
@@ -211,20 +196,17 @@ st.write('---')
 col1, col2 = st.columns(2)
 with col1:
     st_lottie(lottie_img, height=200, key="image_calculator")
-    # st.header('_Historical_')
-    # st.dataframe(st.session_state.df_historical)
 
 with col2:
-    st.header('_Get monthly rate_')
-    annual_rate = st.text_input(
-        'Annual Rate', value='15.0%', placeholder='10.0%', max_chars=7)
-    calc_mrate = st.button('Get Rate', key='btnCalcMRate')
+    st.header('_Get Rates_')
+    annual_rate = st.number_input(
+        '% Annual Rate', value=15.0, min_value=0.0, step=0.1)
+    calc_mrate = st.button('Get Monthly Rate', key='btnCalcMRate')
     if calc_mrate:
         st.empty()
-        if isNumber(annual_rate):
-            st.success(f'Monthly rate = {getMonthlyRate(annual_rate)}')
-        else:
-            st.error('📢Is not a number!!!')
-            st.toast(annual_rate, icon='🧨')
+        st.success(f'Monthly rate = {getRate(annual_rate, 12)}')
+        st.success(f'Daily rate = {getRate(annual_rate, 365)}')
+        st.toast('Rates calculated!', icon='✨')
+
 st.write('---')
 st.write('''Designed by [ZINKER©️](https://zinker.com.br/)''')
