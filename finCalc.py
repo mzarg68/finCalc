@@ -42,11 +42,13 @@ def getOutput() -> str:
     new_calc = {}
     if ndx == 0:
         result = cfValue / (1+(pctValue/100)) ** nperValue
+        result = round(result, 2)
         strResult = str(round(result, 2))
         new_calc = {'Initial': result, 'Final': cfValue,
                     'Periods': nperValue, 'Interest': getPCTText(pctValue), 'Unit': period}
     elif ndx == 1:
         result = ciValue * (1+(pctValue/100)) ** nperValue
+        result = round(result, 2)
         strResult = str(round(result, 2))
         new_calc = {'Initial': ciValue, 'Final': result,
                     'Periods': nperValue, 'Interest': getPCTText(pctValue), 'Unit': period}
@@ -196,10 +198,11 @@ with col1:
     st_lottie(lottie_img, height=200, key="image_calculator")
 
 with col2:
-    st.header('_Get Rates_')
+    st.header('_Interest Rates_')
+    st.text('Define annual rate and then get monthly and daily interest rates')
     annual_rate = st.number_input(
         '% Annual Rate', value=15.0, min_value=0.0, step=0.1)
-    calc_mrate = st.button('Get Monthly Rate', key='btnCalcMRate')
+    calc_mrate = st.button('Get Rates', key='btnCalcMRate')
     if calc_mrate:
         st.empty()
         st.success(f'Monthly rate = {getRate(annual_rate, 12)}')
