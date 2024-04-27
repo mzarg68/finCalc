@@ -49,6 +49,14 @@ def getDoubleText(value: float, decimals: int = 2) -> str:
     return strValue
 
 
+def getPeriodText(value: int) -> str:
+    if value == 1:
+        periodText = str(value) + f' {period[:-1]}'
+    else:
+        periodText = str(value) + f' {period}'
+    return periodText
+
+
 def addCurrency(value: float, decimals: int = 2) -> str:
     return f'{currency} ' + getDoubleText(value, decimals)
 
@@ -61,26 +69,26 @@ def getOutput() -> str:
         result = round(result, 2)
         strResult = addCurrency(result)
         new_calc = {'Initial': strResult, 'Final': addCurrency(cfValue),
-                    'Periods': nperValue, 'Interest': getPCTText(pctValue), 'Unit': period}
+                    'Periods': getPeriodText(nperValue), 'Interest': getPCTText(pctValue)}
     elif ndx == 1:
         result = ciValue * (1+(pctValue/100)) ** nperValue
         result = round(result, 2)
         strResult = addCurrency(result)
         new_calc = {'Initial': addCurrency(ciValue), 'Final': strResult,
-                    'Periods': nperValue, 'Interest': getPCTText(pctValue), 'Unit': period}
+                    'Periods': getPeriodText(nperValue), 'Interest': getPCTText(pctValue)}
     elif ndx == 2:
         result = math.log(cfValue/ciValue) / \
             math.log(1+(pctValue/100))
         result = math.ceil(result)
-        strResult = str(result) + f' {period}'
+        strResult = getPeriodText(result)
         new_calc = {'Initial': addCurrency(ciValue), 'Final': addCurrency(cfValue),
-                    'Periods': result, 'Interest': getPCTText(pctValue), 'Unit': period}
+                    'Periods': result, 'Interest': getPCTText(pctValue)}
     elif ndx == 3:
         result = (((cfValue/ciValue) ** (1/nperValue)) - 1)
         result = round(result, 2)
         strResult = getPCTText(result)
         new_calc = {'Initial': addCurrency(ciValue), 'Final': addCurrency(cfValue),
-                    'Periods': nperValue, 'Interest': strResult, 'Unit': period}
+                    'Periods': getPeriodText(nperValue), 'Interest': strResult}
 
     st.session_state.df_historical.loc[len(
         st.session_state.df_historical) + 1] = new_calc
@@ -102,7 +110,7 @@ currency_options = ['USD', 'BRL', 'ARS', 'GBP']
 calc_image = 'calculate3.json'
 lottie_img = load_lottieimg(calc_image)
 app_version = 'Prototype v0.3.0 @2024-04-26'
-dfcolumns = ['Initial', 'Final', 'Interest', 'Periods', 'Unit']
+dfcolumns = ['Initial', 'Final', 'Interest', 'Periods']
 
 if 'run_counter' not in st.session_state:
     st.session_state.run_counter = 1
@@ -154,7 +162,7 @@ col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 with col1:
     st.header("Setup")
     opt = st.radio('What to be calculated?', options=result_options, index=1)
-    currency = st.selectbox('Currency', options=currency_options, index=1)
+    currency = st.selectbox('Currency', options=currency_options, index=0)
     period = st.selectbox('Periods unit', period_options, index=1)
 
 
@@ -222,7 +230,7 @@ st.write('---')
 # ---- ROW B : HISTORICAL / MONTHLY RATE ----
 col1, col2 = st.columns([2, 3])
 with col1:
-    st.header('_Interest Rates_')
+    st.header('_Quick Interest Rates_')
     st.write('Define annual rate and then get monthly and daily interest rates')
     annual_rate = st.number_input(
         '% Annual Rate', value=15.0, min_value=0.0, step=0.1)
@@ -234,7 +242,7 @@ with col1:
         st.toast('Rates calculated!', icon='✨')
 
 with col2:
-    st.header('_Historical_')
+    st.header('_Log of Calculations_')
     st.dataframe(st.session_state.df_historical, use_container_width=True)
 
 
