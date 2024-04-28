@@ -109,8 +109,14 @@ period_options = ['Days', 'Months', 'Years']
 currency_options = ['USD', 'BRL', 'ARS', 'GBP']
 calc_image = 'calculate3.json'
 lottie_img = load_lottieimg(calc_image)
-app_version = 'Prototype v0.3.0 @2024-04-26'
+app_version = 'app v1.0.0 @2024-04-27'
 dfcolumns = ['Initial', 'Final', 'Interest', 'Periods']
+period_value_min = 1
+period_value_max = 365
+period_value = 12
+invest_initial = 100.0
+invest_future = 500.0
+pct_value = 5.0
 
 if 'run_counter' not in st.session_state:
     st.session_state.run_counter = 1
@@ -171,43 +177,43 @@ with col2:
     if opt == result_options[0]:
         ndx = 0
         st.empty()
-        ciValue = 0.0
+        ciValue = invest_initial
         cfValue = st.number_input(
-            f'Final Value [{currency}]', value=500.0, step=1.0, key='cfValueKey')
-        nperValue = st.slider(f'Periods [in {period}]', min_value=1,
-                              max_value=120, value=12, step=1, key='nperValueKey')
+            f'Final Value [{currency}]', value=invest_future, step=1.0, key='cfValueKey')
+        nperValue = st.slider(f'Periods [in {period}]', min_value=period_value_min,
+                              max_value=period_value_max, value=period_value, step=1, key='nperValueKey')
         pctValue = st.number_input(
-            f'% Interest Rate [by {period[:-1]}]', value=5.0, key='pctValueKey', step=0.1, min_value=0.01)
+            f'% Interest Rate [by {period[:-1]}]', value=pct_value, key='pctValueKey', step=0.1, min_value=0.01)
     elif opt == result_options[1]:
         ndx = 1
         ciValue = st.number_input(
-            f'Initial Value [{currency}]', value=100.0, step=1.0, key='ciValueKey')
+            f'Initial Value [{currency}]', value=invest_initial, step=1.0, key='ciValueKey')
         st.empty()
-        cfValue = 0.0
-        nperValue = st.slider(f'Periods [in {period}]', min_value=1,
-                              max_value=120, value=12, step=1, key='nperValueKey')
+        cfValue = invest_future
+        nperValue = st.slider(f'Periods [in {period}]', min_value=period_value_min,
+                              max_value=period_value_max, value=period_value, step=1, key='nperValueKey')
         pctValue = st.number_input(
-            f'% Interest Rate [by {period[:-1]}]', value=5.0, key='pctValueKey', step=0.1, min_value=0.01)
+            f'% Interest Rate [by {period[:-1]}]', value=pct_value, key='pctValueKey', step=0.1, min_value=0.01)
     elif opt == result_options[2]:
         ndx = 2
         ciValue = st.number_input(
-            f'Initial Value [{currency}]', value=100.0, step=1.0, key='ciValueKey')
+            f'Initial Value [{currency}]', value=invest_initial, step=1.0, key='ciValueKey')
         cfValue = st.number_input(
-            f'Final Value [{currency}]', value=500.0, step=1.0, key='cfValueKey')
+            f'Final Value [{currency}]', value=invest_future, step=1.0, key='cfValueKey')
         st.empty()
         pctValue = st.number_input(
-            f'% Interest Rate [by {period[:-1]}]', value=5.0, key='pctValueKey', step=0.1, min_value=0.01)
-        nperValue = 12
+            f'% Interest Rate [by {period[:-1]}]', value=pct_value, key='pctValueKey', step=0.1, min_value=0.01)
+        nperValue = period_value
     elif opt == result_options[3]:
         ndx = 3
         ciValue = st.number_input(
-            f'Initial Value [{currency}]', value=100.0, step=1.0, key='ciValueKey')
+            f'Initial Value [{currency}]', value=invest_initial, step=1.0, key='ciValueKey')
         cfValue = st.number_input(
-            f'Final Value [{currency}]', value=500.0, step=1.0, key='cfValueKey')
-        nperValue = st.slider(f'Periods [{period}]', min_value=1,
-                              max_value=120, value=12, step=1, key='nperValueKey')
+            f'Final Value [{currency}]', value=invest_future, step=1.0, key='cfValueKey')
+        nperValue = st.slider(f'Periods [{period}]', min_value=period_value_min,
+                              max_value=period_value_max, value=period_value, step=1, key='nperValueKey')
         st.empty()
-        pctValue = 5.00
+        pctValue = pct_value
     st.write('')
     calc_result = st.button('CALCULATE', key='btnCalcResult')
 
